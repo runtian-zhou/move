@@ -62,6 +62,10 @@ pub fn verify_module_with_config(config: &VerifierConfig, module: &CompiledModul
         RecursiveStructDefChecker::verify_module(module)?;
         InstantiationLoopChecker::verify_module(module)?;
         CodeUnitVerifier::verify_module(config, module)?;
+
+        // Add the failpoint injection to test the catch_unwind behavior.
+        fail::fail_point!("verifier-failpoint-panic");
+
         script_signature::verify_module(module, no_additional_script_signature_checks)
     })
     .unwrap_or_else(|_| {
